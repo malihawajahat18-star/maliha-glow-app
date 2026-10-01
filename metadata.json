@@ -1,0 +1,6 @@
+{
+  "name": "Glow with Maleeha - Luxury Beauty & Skincare",
+  "description": "A Touch of Luxury Elegance - Handcrafted organic skincare, botanical formulas, seasonal collections, and couture bridal care in Pakistan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
