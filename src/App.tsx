@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Product, CartItem, Order, ActiveScreen, Season, Category } from './types';
+import { Product, CartItem, Order, ActiveScreen, Season, Category, UserProfile } from './types';
 import { PRODUCTS } from './data/products';
 import { AnnouncementBar } from './components/AnnouncementBar';
 import { Header } from './components/Header';
@@ -24,6 +24,7 @@ import { AccountModal } from './components/AccountModal';
 import { PolicyModal } from './components/PolicyModal';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { InquiryModal } from './components/InquiryModal';
+import { AuthGate } from './components/AuthGate';
 
 export default function App() {
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('home');
@@ -81,7 +82,30 @@ export default function App() {
   const [activePolicyKey, setActivePolicyKey] = useState<string | null>(null);
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
 
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+    try {
+      const saved = localStorage.getItem('gwm_current_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [isGuest, setIsGuest] = useState(false);
+
   // Persist state
+  useEffect(() => {
+    try {
+      if (currentUser) {
+        localStorage.setItem('gwm_current_user', JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem('gwm_current_user');
+      }
+    } catch {
+      // ignore
+    }
+  }, [currentUser]);
+
   useEffect(() => {
     try {
       localStorage.setItem('gwm_cart', JSON.stringify(cart));
@@ -230,11 +254,23 @@ export default function App() {
 
   return (
     <div className="bg-white text-gray-800 antialiased min-h-screen flex flex-col font-sans selection:bg-amber-100 selection:text-maroon-900">
+      {/* 0. VIP Authentication Gate */}
+      {!currentUser && !isGuest && (
+        <AuthGate
+          onAuthenticate={(user) => {
+            setCurrentUser(user);
+            setIsGuest(false);
+          }}
+          onContinueAsGuest={() => setIsGuest(true)}
+        />
+      )}
+
       {/* 1. Announcement Bar */}
       <AnnouncementBar />
 
       {/* 2. Main Luxury Header */}
       <Header
+        currentUser={currentUser}
         activeScreen={activeScreen}
         cartCount={totalCartCount}
         wishlistCount={wishlist.length}
@@ -336,6 +372,7 @@ export default function App() {
         items={cart}
         discountAmount={discountAmount}
         onOrderSuccess={handleOrderSuccess}
+        currentUser={currentUser}
       />
 
       <ProductQuickViewModal
@@ -361,7 +398,14 @@ export default function App() {
       <AccountModal
         isOpen={isAccountOpen}
         onClose={() => setIsAccountOpen(false)}
+        currentUser={currentUser}
+        onSignOut={() => {
+          setCurrentUser(null);
+          setIsGuest(false);
+          setIsAccountOpen(false);
+        }}
         orders={orders}
+        onUpdateUser={(updated) => setCurrentUser(updated)}
       />
 
       <PolicyModal

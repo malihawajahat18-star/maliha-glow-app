@@ -64,3 +64,15 @@ export interface StoreLocation {
 }
 
 export type ActiveScreen = 'home' | 'catalog' | 'story' | 'bank_details' | 'locations';
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  password?: string;
+  city?: string;
+  address?: string;
+  joinedAt: string;
+  tier: 'VIP Patron' | 'Gold Tier' | 'Platinum Tier';
+}

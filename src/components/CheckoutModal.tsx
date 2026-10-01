@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { CartItem, Order } from '../types';
+import React, { useState, useEffect } from 'react';
+import { CartItem, Order, UserProfile } from '../types';
 import { X, CheckCircle, ShieldCheck, Truck, Building2, MessageCircle } from 'lucide-react';
 import { BANK_ACCOUNTS } from '../data/products';
 
@@ -9,6 +9,7 @@ interface CheckoutModalProps {
   items: CartItem[];
   discountAmount: number;
   onOrderSuccess: (order: Order) => void;
+  currentUser?: UserProfile | null;
 }
 
 const PAKISTAN_CITIES = [
@@ -37,16 +38,27 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   items,
   discountAmount,
   onOrderSuccess,
+  currentUser,
 }) => {
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('Lahore');
+  const [fullName, setFullName] = useState(currentUser?.name || '');
+  const [phone, setPhone] = useState(currentUser?.phone || '');
+  const [email, setEmail] = useState(currentUser?.email || '');
+  const [address, setAddress] = useState(currentUser?.address || '');
+  const [city, setCity] = useState(currentUser?.city || 'Lahore');
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'BANK_TRANSFER' | 'RAAST'>('COD');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
+
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.name && !fullName) setFullName(currentUser.name);
+      if (currentUser.phone && !phone) setPhone(currentUser.phone);
+      if (currentUser.email && !email) setEmail(currentUser.email);
+      if (currentUser.address && !address) setAddress(currentUser.address);
+      if (currentUser.city) setCity(currentUser.city);
+    }
+  }, [currentUser, isOpen]);
 
   if (!isOpen) return null;
 

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Search, User, Heart, ShoppingBag, Menu, X } from 'lucide-react';
-import { ActiveScreen, Category, Season } from '../types';
+import { Search, User, Heart, ShoppingBag, Menu, X, Sparkles } from 'lucide-react';
+import { ActiveScreen, Category, Season, UserProfile } from '../types';
 
 interface HeaderProps {
+  currentUser?: UserProfile | null;
   activeScreen: ActiveScreen;
   cartCount: number;
   wishlistCount: number;
@@ -15,6 +16,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({
+  currentUser,
   activeScreen,
   cartCount,
   wishlistCount,
@@ -161,17 +163,37 @@ export const Header: React.FC<HeaderProps> = ({
             <Search className="w-5 h-5 stroke-[1.8]" />
           </button>
 
-          {/* Account / Sign In */}
+          {/* Account / VIP Profile */}
           <button
             onClick={onOpenAccount}
-            aria-label="Account and Lists"
-            className="hidden sm:flex items-center space-x-2 cursor-pointer hover:text-maroon-800 transition-colors focus:outline-none text-left"
+            aria-label="Account and Profile"
+            className="hidden sm:flex items-center space-x-2.5 cursor-pointer hover:opacity-90 transition-opacity focus:outline-none text-left"
             type="button"
           >
-            <User className="w-5 h-5 stroke-[1.8]" />
+            {currentUser ? (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-maroon-900 to-maroon-700 text-amber-200 border border-amber-300/50 flex items-center justify-center font-bold text-xs shadow-xs">
+                {currentUser.name.charAt(0).toUpperCase()}
+              </div>
+            ) : (
+              <User className="w-5 h-5 stroke-[1.8] text-gray-700" />
+            )}
             <div className="text-left text-xs leading-tight">
-              <span className="block text-gray-400 text-[10px]">Hello, sign in</span>
-              <span className="font-semibold text-gray-800">Account &amp; List</span>
+              {currentUser ? (
+                <>
+                  <span className="text-amber-800 font-semibold text-[10px] flex items-center gap-1">
+                    <Sparkles className="w-2.5 h-2.5 text-amber-600" />
+                    <span>{currentUser.tier || 'VIP Patron'}</span>
+                  </span>
+                  <span className="font-bold text-gray-900 truncate max-w-[110px] block">
+                    {currentUser.name}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="block text-gray-400 text-[10px]">VIP Patron</span>
+                  <span className="font-semibold text-gray-800">Sign In</span>
+                </>
+              )}
             </div>
           </button>
 
@@ -208,6 +230,33 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div className="xl:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-3 shadow-lg animate-in slide-in-from-top duration-200">
+          {/* Mobile User Profile Bar */}
+          <div className="pb-3 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-maroon-900 to-maroon-700 text-amber-200 border border-amber-300/40 flex items-center justify-center font-bold text-xs shadow-xs">
+                {currentUser ? currentUser.name.charAt(0).toUpperCase() : 'GM'}
+              </div>
+              <div className="text-xs leading-tight">
+                <span className="font-bold text-gray-900 block truncate max-w-[140px]">
+                  {currentUser ? currentUser.name : 'VIP Visitor'}
+                </span>
+                <span className="text-[10px] text-amber-800 font-semibold flex items-center gap-0.5">
+                  <Sparkles className="w-2.5 h-2.5" />
+                  {currentUser ? currentUser.tier : 'Private Access'}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenAccount();
+              }}
+              className="text-xs bg-stone-100 hover:bg-stone-200 text-maroon-900 font-semibold px-2.5 py-1 rounded transition-colors cursor-pointer"
+            >
+              {currentUser ? 'My Account' : 'Sign In'}
+            </button>
+          </div>
+
           <div className="flex flex-col space-y-2.5 text-xs font-semibold uppercase tracking-wider text-gray-800">
             <button
               onClick={() => {
