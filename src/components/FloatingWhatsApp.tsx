@@ -22,7 +22,7 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({ onOpenInquir
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-6 left-4 sm:left-6 z-40 flex flex-col items-start pointer-events-auto">
       {/* Mini Chat Flyout */}
       {isOpen && (
         <div className="mb-3 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
@@ -116,7 +116,7 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({ onOpenInquir
           </button>
 
           {showInquiryTooltip && (
-            <span className="absolute bottom-full mb-2 right-0 whitespace-nowrap bg-stone-900 text-white text-[11px] font-medium py-1 px-3 rounded shadow-lg border border-amber-400/20 animate-in fade-in duration-150">
+            <span className="absolute bottom-full mb-2 left-0 whitespace-nowrap bg-stone-900 text-white text-[11px] font-medium py-1 px-3 rounded shadow-lg border border-amber-400/20 animate-in fade-in duration-150">
               ✉️ Contact Us • Submit Details
             </span>
           )}
@@ -137,7 +137,7 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({ onOpenInquir
           </button>
 
           {showWhatsAppTooltip && !isOpen && (
-            <span className="absolute bottom-full mb-2 right-0 whitespace-nowrap bg-stone-900 text-white text-[11px] font-medium py-1 px-2.5 rounded shadow-lg animate-in fade-in duration-150">
+            <span className="absolute bottom-full mb-2 left-0 whitespace-nowrap bg-stone-900 text-white text-[11px] font-medium py-1 px-2.5 rounded shadow-lg animate-in fade-in duration-150">
               Chat on WhatsApp ({DISPLAY_PHONE})
             </span>
           )}

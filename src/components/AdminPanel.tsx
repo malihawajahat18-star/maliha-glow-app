@@ -17,6 +17,8 @@ import {
   Sliders,
   ExternalLink,
   Layers,
+  Bot,
+  Key,
 } from 'lucide-react';
 import { SiteContent, CeoProfile, AboutPageContent } from '../types';
 import { CEO_IMAGE_PRESETS, DEFAULT_SITE_CONTENT } from '../data/defaultContent';
@@ -26,6 +28,11 @@ import {
   getAdminAuthStatus,
   setAdminAuthStatus,
 } from '../services/contentStore';
+import {
+  getGeminiApiKey,
+  saveGeminiApiKey,
+  testGeminiApiKey,
+} from '../services/geminiService';
 
 interface AdminPanelProps {
   currentContent: SiteContent;
@@ -51,7 +58,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   );
 
   // Active sub-tab in Admin
-  const [activeTab, setActiveTab] = useState<'ceo' | 'about_story' | 'commitments' | 'preview'>('ceo');
+  const [activeTab, setActiveTab] = useState<'ceo' | 'about_story' | 'commitments' | 'preview' | 'gemini_ai'>('ceo');
+  const [geminiApiKeyInput, setGeminiApiKeyInput] = useState<string>(() => getGeminiApiKey());
+  const [geminiKeyTesting, setGeminiKeyTesting] = useState(false);
+  const [geminiKeyResult, setGeminiKeyResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // UI feedback states
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -363,6 +373,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             >
               <Eye className="w-4 h-4" />
               <span>Live Card Preview</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('gemini_ai')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                activeTab === 'gemini_ai'
+                  ? 'bg-maroon-800 text-white shadow-xs'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <Bot className="w-4 h-4" />
+              <span>AI Chatbot &amp; Gemini</span>
             </button>
           </div>
 
@@ -911,6 +933,177 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <p className="text-xs text-gray-600 leading-relaxed font-light">{ceo.bio}</p>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TAB 5: GEMINI AI & CHATBOT SETTINGS ================= */}
+        {activeTab === 'gemini_ai' && (
+          <div className="max-w-4xl mx-auto space-y-6">
+            {/* Gemini API Key Card */}
+            <div className="bg-white rounded-xl shadow-xs border border-gray-200 p-6 sm:p-8">
+              <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+                <div>
+                  <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                    <Bot className="w-5 h-5 text-maroon-800" />
+                    <span>Google Gemini API Configuration</span>
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Connect your free Gemini API key from Google AI Studio to enable live AI responses.
+                  </p>
+                </div>
+                <span className="text-[10px] font-bold text-amber-900 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">
+                  Gemini 2.5 / 1.5 Flash
+                </span>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                    Google Gemini API Key
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="password"
+                      value={geminiApiKeyInput}
+                      onChange={(e) => setGeminiApiKeyInput(e.target.value)}
+                      placeholder="AIzaSy..."
+                      className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-xs font-mono text-gray-900 focus:outline-none focus:ring-2 focus:ring-maroon-800 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      disabled={geminiKeyTesting}
+                      onClick={async () => {
+                        setGeminiKeyTesting(true);
+                        setGeminiKeyResult(null);
+                        const res = await testGeminiApiKey(geminiApiKeyInput);
+                        setGeminiKeyTesting(false);
+                        setGeminiKeyResult(res);
+                        if (res.success) {
+                          saveGeminiApiKey(geminiApiKeyInput);
+                          showToast('Gemini API Key validated and saved successfully!');
+                        }
+                      }}
+                      className="bg-maroon-800 hover:bg-maroon-900 disabled:opacity-50 text-white font-bold px-5 py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5 flex-shrink-0"
+                    >
+                      <Key className="w-3.5 h-3.5" />
+                      <span>{geminiKeyTesting ? 'Testing...' : 'Test & Save Key'}</span>
+                    </button>
+                  </div>
+
+                  {geminiKeyResult && (
+                    <div
+                      className={`mt-3 p-3 rounded-lg text-xs flex items-center gap-2 ${
+                        geminiKeyResult.success
+                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                          : 'bg-red-50 text-red-800 border border-red-200'
+                      }`}
+                    >
+                      {geminiKeyResult.success ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                      )}
+                      <span>{geminiKeyResult.message}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-amber-50/70 border border-amber-200/80 rounded-lg p-4 text-xs text-amber-900 space-y-1.5">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-amber-700" />
+                    <span>How to get a free Google Gemini API Key:</span>
+                  </div>
+                  <ol className="list-decimal pl-5 space-y-1 text-gray-700">
+                    <li>
+                      Visit{' '}
+                      <a
+                        href="https://aistudio.google.com/app/apikey"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-maroon-800 font-semibold underline inline-flex items-center gap-0.5"
+                      >
+                        Google AI Studio Key Manager <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </li>
+                    <li>Sign in with your Google Account and click <strong>Create API Key</strong>.</li>
+                    <li>Copy the key that starts with <code>AIzaSy...</code> and paste it in the box above.</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            {/* Chatbot Training & Welcome Message Overview */}
+            <div className="bg-white rounded-xl shadow-xs border border-gray-200 p-6 sm:p-8">
+              <div className="pb-4 mb-5 border-b border-gray-100">
+                <h3 className="text-base font-bold text-gray-900">
+                  Chatbot Welcome Message &amp; Training Data
+                </h3>
+                <p className="text-xs text-gray-500">
+                  The initial greeting and knowledge base active in your AI Luxury Beauty Concierge.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                    Active Welcome Greeting
+                  </label>
+                  <div className="p-3 bg-stone-50 border border-gray-200 rounded-lg text-xs font-medium text-gray-800">
+                    &ldquo;welcome to glow with malihahow i can help you today?&rdquo;
+                  </div>
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    This exact greeting is presented to every visitor when opening the chat widget.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                    Trained Knowledge Base
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3 rounded-lg border border-gray-200 bg-stone-50/60">
+                      <span className="font-bold text-gray-900 block mb-1">🌿 Formulation Philosophy</span>
+                      <p className="text-gray-600 font-light">
+                        100% steroid-free, non-comedogenic, specifically micro-blended in Lahore for South Asian skin and Pakistan&apos;s climate.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-lg border border-gray-200 bg-stone-50/60">
+                      <span className="font-bold text-gray-900 block mb-1">🛍️ Complete Catalog &amp; PKR Prices</span>
+                      <p className="text-gray-600 font-light">
+                        24K Hydra Serum (PKR 3,450), Cashmere Glow Cream (PKR 3,200), Royal Bridal 30-Day Box (PKR 14,500).
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-lg border border-gray-200 bg-stone-50/60">
+                      <span className="font-bold text-gray-900 block mb-1">🏷️ Promo Codes</span>
+                      <p className="text-gray-600 font-light">
+                        Recognizes <code>GLOW10</code> (10% off) and <code>ELEGANCE</code> (PKR 500 off) plus free delivery over PKR 5,000.
+                      </p>
+                    </div>
+
+                    <div className="p-3 rounded-lg border border-gray-200 bg-stone-50/60">
+                      <span className="font-bold text-gray-900 block mb-1">📍 Stores &amp; WhatsApp Concierge</span>
+                      <p className="text-gray-600 font-light">
+                        Liberty Market Lahore flagship, Gulberg III, Gujranwala, and WhatsApp 0324 4999395.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Test CTA */}
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onNavigateToHome}
+                className="bg-maroon-800 hover:bg-maroon-900 text-white font-bold py-2.5 px-6 rounded-lg text-xs uppercase tracking-wider shadow cursor-pointer transition-colors flex items-center gap-2"
+              >
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                <span>Test Live Chatbot on Website</span>
+              </button>
             </div>
           </div>
         )}
