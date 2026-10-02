@@ -5,12 +5,16 @@ interface FooterProps {
   onOpenLocation: (locationId?: string) => void;
   onOpenPolicy: (policyKey: string) => void;
   onNavigateToBank: () => void;
+  onNavigateToAbout?: () => void;
+  onNavigateToAdmin?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onOpenLocation,
   onOpenPolicy,
   onNavigateToBank,
+  onNavigateToAbout,
+  onNavigateToAdmin,
 }) => {
   return (
     <footer
@@ -104,6 +108,15 @@ export const Footer: React.FC<FooterProps> = ({
             <li>
               <button
                 type="button"
+                onClick={onNavigateToAbout}
+                className="hover:text-maroon-800 font-semibold text-gray-800 transition-colors cursor-pointer text-left"
+              >
+                About Us &amp; CEO Profile
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
                 onClick={() => onOpenPolicy('shipping')}
                 className="hover:text-maroon-800 transition-colors cursor-pointer text-left"
               >
@@ -162,6 +175,16 @@ export const Footer: React.FC<FooterProps> = ({
                 className="hover:text-maroon-800 transition-colors cursor-pointer text-left"
               >
                 Contact
+              </button>
+            </li>
+            <li className="pt-2">
+              <button
+                type="button"
+                onClick={onNavigateToAdmin}
+                className="text-[11px] font-bold uppercase tracking-wider text-amber-900 bg-amber-100/70 hover:bg-amber-200 px-2.5 py-1 rounded border border-amber-300 transition-colors cursor-pointer text-left flex items-center gap-1.5"
+              >
+                <span>⚙</span>
+                <span>Admin CMS Portal</span>
               </button>
             </li>
           </ul>

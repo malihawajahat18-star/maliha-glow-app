@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, User, Heart, ShoppingBag, Menu, X, Sparkles } from 'lucide-react';
+import { Search, User, Heart, ShoppingBag, Menu, X, Sparkles, ShieldCheck } from 'lucide-react';
 import { ActiveScreen, Category, Season, UserProfile } from '../types';
 
 interface HeaderProps {
@@ -120,12 +120,14 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           <button
-            onClick={() => handleNavClick('story')}
+            onClick={() => handleNavClick('about')}
             className={`hover:text-maroon-800 transition-colors cursor-pointer py-1 ${
-              activeScreen === 'story' ? 'text-maroon-800 font-bold border-b-2 border-maroon-800' : ''
+              activeScreen === 'about' || activeScreen === 'story'
+                ? 'text-maroon-800 font-bold border-b-2 border-maroon-800'
+                : ''
             }`}
           >
-            Our Story
+            About Us
           </button>
 
           <button
@@ -224,6 +226,21 @@ export const Header: React.FC<HeaderProps> = ({
               {cartCount}
             </span>
           </button>
+
+          {/* Admin CMS Access Shortcut */}
+          <button
+            onClick={() => handleNavClick('admin')}
+            aria-label="Admin CMS Panel"
+            className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer border ${
+              activeScreen === 'admin'
+                ? 'bg-maroon-800 text-white border-maroon-800 shadow-xs'
+                : 'border-amber-300/80 bg-amber-50 hover:bg-amber-100 text-maroon-900'
+            }`}
+            title="Admin CMS - Dynamically Manage Content & CEO"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
+            <span>Admin CMS</span>
+          </button>
         </div>
       </div>
 
@@ -303,10 +320,10 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="text-stone-400">→</span>
             </button>
             <button
-              onClick={() => handleNavClick('story')}
+              onClick={() => handleNavClick('about')}
               className="text-left py-2 hover:text-maroon-800 border-b border-gray-50 flex items-center justify-between"
             >
-              <span>Our Story</span>
+              <span>About Us</span>
               <span className="text-stone-400">→</span>
             </button>
             <button
@@ -322,10 +339,20 @@ export const Header: React.FC<HeaderProps> = ({
                   if (onFilterCategory) onFilterCategory('all', 'all', true);
                 });
               }}
-              className="text-left py-2 text-maroon-800 font-bold flex items-center justify-between"
+              className="text-left py-2 text-maroon-800 font-bold flex items-center justify-between border-b border-gray-50"
             >
               <span>Special Sale</span>
               <span className="text-maroon-800 font-bold">SALE</span>
+            </button>
+            <button
+              onClick={() => handleNavClick('admin')}
+              className="text-left py-2 text-amber-900 bg-amber-50 px-2.5 rounded font-bold flex items-center justify-between border border-amber-200"
+            >
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-maroon-800" />
+                <span>Admin CMS (Manage CEO &amp; Content)</span>
+              </span>
+              <span className="text-amber-800 font-bold">⚙</span>
             </button>
 
             <div className="pt-2 flex items-center gap-3">

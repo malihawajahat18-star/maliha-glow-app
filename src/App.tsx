@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Product, CartItem, Order, ActiveScreen, Season, Category, UserProfile } from './types';
+import { Product, CartItem, Order, ActiveScreen, Season, Category, UserProfile, SiteContent } from './types';
 import { PRODUCTS } from './data/products';
 import { AnnouncementBar } from './components/AnnouncementBar';
 import { Header } from './components/Header';
@@ -13,6 +13,9 @@ import { FAQSection } from './components/FAQSection';
 import { Footer } from './components/Footer';
 import { ProductCatalog } from './components/ProductCatalog';
 import { OurStoryScreen } from './components/OurStoryScreen';
+import { AboutScreen } from './components/AboutScreen';
+import { AdminPanel } from './components/AdminPanel';
+import { loadSiteContent } from './services/contentStore';
 import { BankDetailsScreen } from './components/BankDetailsScreen';
 import { CartDrawer } from './components/CartDrawer';
 import { WishlistDrawer } from './components/WishlistDrawer';
@@ -28,6 +31,19 @@ import { AuthGate } from './components/AuthGate';
 
 export default function App() {
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('home');
+  const [siteContent, setSiteContent] = useState<SiteContent>(() => loadSiteContent());
+
+  useEffect(() => {
+    const handleCmsUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<SiteContent>;
+      if (customEvent.detail) {
+        setSiteContent(customEvent.detail);
+      }
+    };
+    window.addEventListener('gwm-cms-content-changed', handleCmsUpdate);
+    return () => window.removeEventListener('gwm-cms-content-changed', handleCmsUpdate);
+  }, []);
+
   const [catalogFilters, setCatalogFilters] = useState<{
     season?: Season;
     category?: Category;
@@ -289,7 +305,7 @@ export default function App() {
             {/* SHOP BY SEASON - Exact match to reference screenshot & HTML */}
             <SeasonBanners
               onSelectSeason={handleSelectSeason}
-              onExplorePhilosophy={() => setActiveScreen('story')}
+              onExplorePhilosophy={() => setActiveScreen('about')}
             />
 
             {/* HAVE A QUESTION? - Exact match to reference FAQ accordion */}
@@ -312,27 +328,43 @@ export default function App() {
           />
         )}
 
-        {activeScreen === 'story' && (
-          <OurStoryScreen
+        {(activeScreen === 'about' || activeScreen === 'story') && (
+          <AboutScreen
+            content={siteContent}
             onShopCollections={() => {
               setCatalogFilters({ season: 'all', category: 'all' });
               setActiveScreen('catalog');
             }}
+            onOpenAdmin={() => setActiveScreen('admin')}
+            onOpenInquiry={() => setIsInquiryOpen(true)}
+          />
+        )}
+
+        {activeScreen === 'admin' && (
+          <AdminPanel
+            currentContent={siteContent}
+            onUpdateContent={(updated) => setSiteContent(updated)}
+            onNavigateToAbout={() => setActiveScreen('about')}
+            onNavigateToHome={() => setActiveScreen('home')}
           />
         )}
 
         {activeScreen === 'bank_details' && <BankDetailsScreen />}
       </main>
 
-      {/* 4. Luxury Footer - Exact match to reference */}
-      <Footer
-        onOpenLocation={(locId) => {
-          setSelectedLocationId(locId);
-          setIsLocationsOpen(true);
-        }}
-        onOpenPolicy={(policy) => setActivePolicyKey(policy)}
-        onNavigateToBank={() => setActiveScreen('bank_details')}
-      />
+      {/* 4. Luxury Footer */}
+      {activeScreen !== 'admin' && (
+        <Footer
+          onOpenLocation={(locId) => {
+            setSelectedLocationId(locId);
+            setIsLocationsOpen(true);
+          }}
+          onOpenPolicy={(policy) => setActivePolicyKey(policy)}
+          onNavigateToBank={() => setActiveScreen('bank_details')}
+          onNavigateToAbout={() => setActiveScreen('about')}
+          onNavigateToAdmin={() => setActiveScreen('admin')}
+        />
+      )}
 
       {/* 5. Floating Actions: VIP Consultation + WhatsApp */}
       <FloatingWhatsApp onOpenInquiry={() => setIsInquiryOpen(true)} />

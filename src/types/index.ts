@@ -63,7 +63,7 @@ export interface StoreLocation {
   isFlagship?: boolean;
 }
 
-export type ActiveScreen = 'home' | 'catalog' | 'story' | 'bank_details' | 'locations';
+export type ActiveScreen = 'home' | 'catalog' | 'story' | 'about' | 'bank_details' | 'locations' | 'admin';
 
 export interface UserProfile {
   id: string;
@@ -75,4 +75,42 @@ export interface UserProfile {
   address?: string;
   joinedAt: string;
   tier: 'VIP Patron' | 'Gold Tier' | 'Platinum Tier';
+}
+
+export interface CeoProfile {
+  name: string;
+  title: string;
+  qualifications: string;
+  bio: string;
+  quote: string;
+  imageUrl: string;
+  signatureText: string;
+  socialHandle?: string;
+}
+
+export interface AboutCommitment {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+}
+
+export interface AboutPageContent {
+  badge: string;
+  title: string;
+  subtitle: string;
+  storyHeading: string;
+  storyText1: string;
+  storyText2: string;
+  storyText3: string;
+  storyImageUrl: string;
+  storyImageTag: string;
+  storyImageCaption: string;
+  ceo: CeoProfile;
+  commitments: AboutCommitment[];
+}
+
+export interface SiteContent {
+  about: AboutPageContent;
+  lastUpdated?: string;
 }
