@@ -15,7 +15,6 @@ import { ProductCatalog } from './components/ProductCatalog';
 import { OurStoryScreen } from './components/OurStoryScreen';
 import { AboutScreen } from './components/AboutScreen';
 import { AdminPanel } from './components/AdminPanel';
-import { ChatWidget } from './components/ChatWidget';
 import { loadSiteContent } from './services/contentStore';
 import { BankDetailsScreen } from './components/BankDetailsScreen';
 import { CartDrawer } from './components/CartDrawer';
@@ -370,15 +369,7 @@ export default function App() {
       {/* 5. Floating Actions: VIP Consultation + WhatsApp */}
       <FloatingWhatsApp onOpenInquiry={() => setIsInquiryOpen(true)} />
 
-      {/* 6. AI Luxury Beauty Concierge Chatbot (Gemini AI) */}
-      {activeScreen !== 'admin' && (
-        <ChatWidget
-          onQuickViewProduct={(p) => setQuickViewProduct(p)}
-          onAddToCart={(p) => handleAddToCart(p)}
-        />
-      )}
-
-      {/* 7. Drawers & Modals */}
+      {/* 6. Drawers & Modals */}
       <InquiryModal
         isOpen={isInquiryOpen}
         onClose={() => setIsInquiryOpen(false)}
